@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message UserRequest {
+    string token = 1;
+}
+
+message UserResponse {
+    int64 user_id = 1;
+    string username = 2;
+    string firstname = 3;
+    string midname = 4;
+    string lastname = 5;
+    bool is_superuser = 6;
+}
+
+message CodeResponse{
+    int32 code = 1;
+}
+
+service Auth {
+    rpc authenticate (UserRequest) returns (UserResponse);
+    rpc deauthenticate (UserRequest) returns (CodeResponse);
+}
