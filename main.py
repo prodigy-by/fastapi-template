@@ -1,15 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import redis
-from databases import Database
-from api import api
-from core import config, connections
+import api 
 
 app = FastAPI()
 
 origins = [
-    'http://localhost:3000',
-    'localhost:3000',
+    'http://localhost:5173',
+    'localhost:5173',
 ]
 
 app.add_middleware(
@@ -20,18 +17,9 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-app.include_router(router=api.router)
+app.mount('/api', api.app)
 
-db_postgres = Database(url=config.POSTGRES_URL)
+@app.get('/ping')
+async def ping():
+    return {'message':'pong'}
 
-
-@app.on_event("startup")
-async def startup():
-    await db_postgres.connect()
-    r = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0, decode_responses=True)
-    connections.inject_db(app, db_postgres, r)
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    await db_postgres.disconnect()
